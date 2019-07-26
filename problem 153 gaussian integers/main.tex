@@ -1,0 +1,307 @@
+%% marcel's template
+
+\documentclass[11pt]{article}
+\usepackage[margin=0.5in]{geometry}
+\usepackage{amsmath,amsthm,amssymb,amsfonts,tikz,tikzsymbols}
+\usepackage[shortlabels]{enumitem}
+\usepackage{mathtools}% cieling and floor functions
+\usepackage{listings}% for the code
+\usepackage{color}
+\usepackage{hyperref}% mainly for \tableofcontents
+\hypersetup{
+    colorlinks,
+    citecolor=blue,
+    filecolor=blue,
+    linkcolor=blue,
+    urlcolor=blue
+}
+
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\F}{\mathbb{F}}
+
+% steve's commands
+\newcommand{\M}{\mathbb{M}}
+\newcommand{\RA}{\Rightarrow}
+\newcommand{\st}{\text{ s.t. }}
+
+\usepackage{tikz}% for the gaussian integer diagrams see:
+% https://tex.stackexchange.com/questions/18260/drawing-a-circle-in-the-complex-plane 
+% https://tex.stackexchange.com/questions/20807/setting-text-color-in-tikz-without-changing-line-color-conflict-with-double
+
+
+% for the code, listings
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=none,%frame=tblr,
+  language=Python,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+% Marcel's wonderful qed symbol
+\renewcommand\qedsymbol{$\Smiley$}
+
+% cieling and floor functions fuses mathtools
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+\newenvironment{problem}[2][\to]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{exercise}[2][Exercise]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+%If you want to title your bold things something different just make another thing exactly like this but replace "problem" with the name of the thing you want, like theorem or lemma or whatever
+
+\begin{document}
+ 
+%\renewcommand{\qedsymbol}{\filledbox}
+%Good resources for looking up how to do stuff:
+%Binary operators: http://www.access2science.com/latex/Binary.html
+%General help: http://en.wikibooks.org/wiki/LaTeX/Mathematics
+%Or just google stuff
+ 
+\title{Project Euler Problem 153 - Gaussian Integers}
+\author{Stephen Fay}
+\date{2019 July 19}
+\maketitle
+
+\tableofcontents
+
+\section{Problem}
+As we all know the equation $x^2=-1$ has no solutions for real $x$.\\
+If we however introduce the imaginary number $i$ this equation has two solutions: $x=i$ and $x=-i$.\\
+If we go a step further the equation $(x-3)^2=-4$ has two complex solutions: $x=3+2i$ and $x=3-2i$.\\
+$x=3+2i$ and $x=3-2i$ are called each others' complex conjugate.\\
+Numbers of the form a+bi are called complex numbers.\\
+In general $a+bi$ and $a−bi$ are each other's complex conjugate.\\
+
+A Gaussian Integer is a complex number $a+bi$ such that both a and b are integers.\\
+The regular integers are also Gaussian integers (with $b=0$).\\
+To distinguish them from Gaussian integers with $b \neq 0$ we call such integers "rational integers."\\
+A Gaussian integer is called a divisor of a rational integer $k$ if the result is also a Gaussian integer.\\
+
+Let $s(k)$ denote the sum of all the positive real parts of the Gaussian divisors of $k$\\
+
+Find \begin{equation}\label{equation: the summation}\gamma=\sum_{k=1}^{10^8}s(k)\end{equation}
+
+Helper: \begin{equation}\label{equation: given sum}\sum_{k=1}^{10^5}s(k) = 17924657155\end{equation}
+
+\section{Some Math behind the Algorithm: Explanation and Proofs}
+
+Note: I mainly use the symbol $\N$ instead of $\Z$ because this problem doesn't concern it's self with negative parts.
+
+\subsection{$\N$}
+The first thing to do is to solve the problem considering only the integer factors. We want to find an efficient way of calculating the following sum where $n=10^8$
+$$
+\sum_{k=1}^{n}S_{\Z}(k) \quad\quad \text{ where } \quad S_{\Z}(k) = S(k) \quad \text{ restricted to the integers}
+$$
+Rather than factoring each $k \in [1,n]$ and summing the factors we instead consider, for each number $q < n$, what is $q$ a factor of? Which is simple to answer, we just do the $q$ times table; we then add the number of positive numbers in the $q$ times table that are smaller or equal to $n$; we do this for every $q < n$ to find $\kappa$
+\begin{equation}\label{equation:natural sum}
+\kappa := \sum_{k=1}^{n}S_{\Z}(k) = \sum_{q=1}^{n} q \cdot \floor*{n/q}
+\end{equation}
+This reformulation of the sum lends it's self to much speedier computation, in python it can be written in a single line of code:
+
+\lstset{frame=none}
+\begin{lstlisting}
+sum([q*(n//q) for q in range(1,n+1)])
+\end{lstlisting}
+
+\subsection{$\C$}\\
+All we have to do is now is to find the sum of the positive real parts of the non-integer complex factors of all the numbers smaller than n. We will use the same trick as with the integer factors: instead of trying to factor each natural number smaller than $n = 10^8$ we will look at each Gaussian integer smaller than $n$ and determine how many natural numbers (also smaller than $n$) it is a factor of. All it takes to reduce this problem to something my computer can tackle in under 2 minuets is to a) draw some straight lines and b) exploit the symmetries of the complex plane. We will start with b), the symmetries:
+
+\begin{problem}[Observation 1]\\ 
+$(a+ib) | k$ with $a,b,k\in\N \quad \RA (a\pm ib) | k\quad$ and $\quad (b \pm ia) | k$
+\end{problem}
+\begin{proof}
+$$
+(a+ib)|k \RA \frac{k}{a+ib} = c+id \quad \text{for some}\quad c,d\in \Z
+$$
+$$
+\RA \frac{k}{a+ib} = \frac{k(a-ib)}{a^2 + b^2} \RA \frac{a}{a^2+b^2}\in \Z \text{ and } \frac{b}{a^2+b^2}\in \Z
+$$
+Hence
+$$
+\frac{k}{a-ib} = \frac{k\cdot a}{a^2+b^2} + i\frac{k\cdot b}{a^2+b^2} \in \Z[i] 
+\quad \text{ and } \quad
+\frac{k}{b\pm ia} = \frac{k\cdot b}{a^2+b^2} \mp \frac{k\cdot a}{a^2+b^2} \in \Z[i]
+$$
+\end{proof}
+This is intuitive is you consider that multiplication in the complex plane is merely adding multiplying the absolute values and adding the angles. The statement is merely that if there is one Gaussian integer that lies on the circle centered at the origin of radius $r = \sqrt{a^2+b^2}$, then there are at the very least 3 others. And if $a\neq b$ then there are at least 7 others, 4 of these 8 divisors have positive real components and are therefore candidates for consideration. Put crudely, what we are doing is cutting our domain in 4\\
+
+% https://tex.stackexchange.com/questions/18260/drawing-a-circle-in-the-complex-plane
+% -- cartesian plane diagram --
+\iffalse
+\begin{tikzpicture}
+    \begin{scope}[thick,font=\scriptsize]
+    % Axes:
+    % Are simply drawn using line with the `->` option to make them arrows:
+    % The main labels of the axes can be places using `node`s:
+    \draw [->] (-3,0) -- (15,0) node [above left]  {$\R$};
+    \draw [->] (0,-3) -- (0,11) node [below right] {$\Im$};
+
+    % Axes labels:
+    % Are drawn using small lines and labeled with `node`s. The placement can be set using options
+    \iffalse% Single
+    % If you only want a single label per axis side:
+    \draw (1,-3pt) -- (1,3pt)   node [above] {$1$};
+    \draw (-1,-3pt) -- (-1,3pt) node [above] {$-1$};
+    \draw (-3pt,1) -- (3pt,1)   node [right] {$i$};
+    \draw (-3pt,-1) -- (3pt,-1) node [right] {$-i$};
+    \else% Multiple
+    
+    % draw lines of symmetry
+    %\begin{scope}[curve in scope red]
+    \draw (-2,-2) -- (10,10)
+    %\end{scope}
+    
+    
+    
+    % If you want labels at every unit step:
+    \foreach \n in {-2,...,-1,1,2,...,10}{%
+        \draw (\n,-3pt) -- (\n,3pt)   node [above] {$\n$};
+        \draw (-3pt,\n) -- (3pt,\n)   node [right] {$\n i$};
+    }
+    \foreach \n in {11,12,13,14}{
+        \draw (\n,-3pt) -- (\n,3pt)   node [above] {$\n$};
+    }
+    \foreach \n in {-2,...,-1,1,2,...,10}{
+        \foreach \m in {-2,...,-1,1,2,...,14}{
+            \draw (\m,\n) node[circle,fill,inner sep=1pt]{};
+        }
+        
+    }
+    % the dude's circle which is very nice... but not for me thanks, delete this once you've read and understand it
+    \draw (0,0) node[circle,fill,inner sep=1pt]{};
+    \fi
+    \end{scope}
+    % The circle is drawn with `(x,y) circle (radius)`
+    % You can draw the outer border and fill the inner area differently.
+    % Here I use gray, semitransparent filling to not cover the axes below the circle
+    \path [draw=none,fill=gray,semitransparent] (+1,-1) circle (3);
+    % Place the equation into the circle:
+    \node [below right,gray] at (+1,-1) {$|z-1+i| \leq 3$};
+\end{tikzpicture}
+\fi
+% -- cartesian plane diagram --
+
+First, we notice that each Gaussian factor (and it's conjugate pair) $(a\pm ib) | k$ with $a,b,k\in \N$ and $k \leq n$ is part of a pair since 
+$$\frac{k}{a\pm ib} = \frac{k(a\mp ib)}{a^2+b^2} \in\Z[i] \RA \frac{ka}{a^2+b^2}\in\Z \text{ and } \frac{kb}{a^2+b^2}\in\Z$$
+Is also a factor of $k$\\
+
+\begin{problem}[Observation 2]\\
+    If $\gcd(a,b)=1$ and $(a+ib)|k \RA k = m\cdot (a^2+b^2)$ with $a,b\in \Z\quad$ for any $k\in\N$ where $m\in\N$\\
+    In English: for every Gaussian integer whereby the real and imaginary components share no prime factors, the smallest natural number that they divide is $a^2+b^2$ and all the other numbers that they divide are multiples of this.
+\end{problem}
+\begin{proof}
+    We can see from our proof of observation 1 that $(a+ib)|(a^2+b^2)\quad \forall (a+ib)\in\Z[i]$ and thus $(a+ib)|m\cdot (a^2+b^2)\quad \forall m\in\N$\\
+    We now show that there are no other natural numbers divisible by $(a+ib)$: 
+    $$
+    (a^2+b^2)|ka \text{ and } (a^2+b^2)|kb \RA (a^2+b^2)|\gcd(ka,kb)\quad,\quad\gcd(ka,kb)=k\gcd(a,b)=k\ \RA (a^2+b^2)|k
+    $$
+\end{proof}
+
+\begin{problem}[Corollary 1]\\
+    $$\text{If }\gcd(a,b) = q \RA \{k\text{ s.t. }(a+ib)|k\} = \{ k : k=\frac{m(a^2+b^2)}{q} \text{ for }m\in\N\}$$
+\end{problem}
+\begin{proof}
+    Since $\gcd(\frac{a}{q},\frac{b}{q})=1 \RA \{h\text{ s.t. } (\frac{a}{q}+i\frac{b}{q})|h\} = 
+    \{h : h=m\cdot\frac{a^2+b^2}{q^2}\}$, we divide $h$ by $(a+ib)$
+    $$
+    \frac{h}{a+ib} = \frac{m\cdot(a^2+b^2)}{q^2(a+ib)}\cdot\frac{a-ib}{a-ib} = \frac{am\cdot(a^2+b^2) - ibm\cdot(a^2+b^2)}{q^2(a^2+b^2)} = m\cdot\frac{a+ib}{q^2} = m\cdot\frac{a/q+ib/q}{q}
+    $$
+    Thus we must multiply by $h$ by $q$ to obtain integer solutions for all $m\in\N$, so our set of solutions is 
+    $$
+    \{ k\text{ s.t. } k=hq=m\cdot\frac{a^2+b^2}{q} \}
+    $$
+    
+\end{proof}
+
+% --- cut this out and include in .md article --- %
+\iffalse
+The intuition that underlies the two above statements is the following: considering multiplication between complex numbers to be a binary operation whereby you multiply the lengths and sum the arguments of pointy arrows in the complex plane and consider $u = (a+ib) = ze^{i\theta}$ such that $\gcd(a,b)=1$. Now draw a straight line that passes through $0$ and $u$. If you follow the line from the origin outwards, the first Gaussian integer you encounter will be $u$, and all the other Gaussian integers you encounter will be integer multiples of $u$. Because of the way our complex binary operator behaves, dividing any real number by $u$ will give you a complex number that lies on the line that is the relection of this line on the real line, in other words the argument is negated: $\frac{r}{ze^{i\theta}} = \frac{r}{z}e^{-i\theta}$.\\
+
+So any integer $k \text{ s.t. }u|k$ is the product of $u$ and $v$  where $\arg(v)=-\theta$, so $v = \alpha(a-ib)$\\
+\fi
+% --- cut this out and include in .md article --- %
+
+\begin{problem}[Corollary 2]\\
+    If $gcd(a,b)=1$ and $a^2+b^2 > \sqrt{n}$ the $a+ib$ is not a Gaussian factor of \textit{any} natural number smaller than $n$.
+\end{problem}
+
+We are now ready to design an efficient algorithm.
+
+\section{The Algorithm}
+
+\subsection{The core calculation loop}
+Consider $u = ze^{i\theta} = a+ib\in\Z[i]$ with $a,b>0$ and $\gcd(a,b)=1$. Let $\lambda$ be the number of natural numbers $k<n$ are there such that $u|k$? Applying observation 2, $k\in\{m\cdot z^2 : m\in\N\}$. So $\lambda = \floor*{n/z^2}$. That's it! So the net contribution of $u$ to the sum is $\lambda\cdot a$. But we can take this further : employing the symmetry of observation 1, we know that for $\lambda$ is the same lambda for $u^* = a - ib$ and also $b \pm ia$. So with only $a,b$ we can add to our final sum
+
+$$
+\gamma \mspace{5mu} + \mspace{-5mu}= 2 (a+b) \cdot \floor*{\frac{n}{a^2+b^2}}
+$$
+
+But we can take this further still! From $u = a+ib$ alone we can find quickly all the contributions given by multiples of $u$ and it's reflected counter-parts -- What $\lambda$ is associated with $q\cdot u$?: $\lambda = \floor*{n/(q\cdot z^2)}$. Put concisely: the total of the contributions of all the Gaussian integers whereby the ratio of the real and complex components is either $a/b$ or $b/a$ with $\gcd(a,b)=1$ to $\gamma = \sum_{k=1}^{n} s(k)$ is
+$$
+\sum_{q=1}^{\floor*{n/z^2}} 2\cdot (a+b)\cdot \floor*{\frac{n}{q\cdot z^2}} = 
+2 (a+b)\cdot \sum_{q=1}^{\floor*{n/z^2}} \floor*{\frac{n}{q\cdot z^2}}
+$$
+If $a\neq b$. If $a=b$ it is:
+$$
+2 a\cdot \sum_{q=1}^{\floor*{n/z^2}} \floor*{\frac{n}{q\cdot z^2}}
+$$
+In python this translates to
+\lstset{frame=btlr}
+\begin{lstlisting}
+zsq = a**2+b**2
+if a==b: the_sum += 2 * a * sum([zsq * (n//(q * zsq)) for q in range(1,n//zsq +1)])
+else: the_sum += 2 * (a + b) * sum([zsq * (n//(q * zsq)) for q in range(1,n//zsq +1)])
+\end{lstlisting}
+
+\subsection{Main loop}
+
+All we need now is a couple of for loops to find us every relatively prime $a,b$ such that $a^2+b^2 < n$ and apply the above formula to them. The symmetries reduces our domain to an eighth of a circle of the complex plane, for the sake of the illustration we will pick the `bottom' half of the $1^{st}$ quadrant.
+
+% --- diagram here --- %
+
+% --- diagram here --- %
+
+\begin{lstlisting}
+for b in range(1,int(0.5*(np.sqrt(2*n-1)-1)+1)):
+    for a in relatively_primes(b,n): eta += factors_sum_line(a,b,n)
+\end{lstlisting}
+\texttt{relatively\_primes(b,n) returns all the natural numbers $a<n\st \gcd(a,b)=1$}\\
+\texttt{factors\_sum\_line(a,b,n)} returns what is added to \texttt{the\_sum} in the code box above this one.
+
+
+
+
+
+
+
+\section{Links}
+
+\begin{itmemize}
+\item \href{https://projecteuler.net/problem=153}{Project Euler Problem 153}
+\item \href{https://github.com/dcxSt/project-euler/blob/master/problem\%20153\%20gaussian\%20integers/problem153.py}{Code}
+\item \href{}{My post about this problem}
+
+\end{itmemize}
+
+\end{document}
+
