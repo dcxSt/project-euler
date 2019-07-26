@@ -1,0 +1,12 @@
+PseudoCode Inner Right Triangles
+
+for each perimeter p
+for each possible value c
+
+use formula to determine if ab is an integer
+if it is then make a list of each pair of numbers give it when multiplied
+look through all of these pairs and see how many of them satisfy the condition a+b+c=p
+
+for each of these pairs add the [a,b,c] to the list of triangles and return this triangles
+
+if this is the longest list of triangles that satisfy the property, then update the special one
