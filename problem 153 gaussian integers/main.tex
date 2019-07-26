@@ -8,6 +8,7 @@
 \usepackage{listings}% for the code
 \usepackage{color}
 \usepackage{hyperref}% mainly for \tableofcontents
+\usepackage{ifthen}
 \hypersetup{
     colorlinks,
     citecolor=blue,
@@ -143,11 +144,15 @@ $$
 \frac{k}{b\pm ia} = \frac{k\cdot b}{a^2+b^2} \mp \frac{k\cdot a}{a^2+b^2} \in \Z[i]
 $$
 \end{proof}
-This is intuitive is you consider that multiplication in the complex plane is merely adding multiplying the absolute values and adding the angles. The statement is merely that if there is one Gaussian integer that lies on the circle centered at the origin of radius $r = \sqrt{a^2+b^2}$, then there are at the very least 3 others. And if $a\neq b$ then there are at least 7 others, 4 of these 8 divisors have positive real components and are therefore candidates for consideration. Put crudely, what we are doing is cutting our domain in 4\\
+This can be made intuitive if you consider that multiplication in the complex plane as multiplying absolute values and summing angles; if there is one Gaussian integer that lies on the circle centered at the origin of radius $r = \sqrt{a^2+b^2}$, then there are at the very least 3 others. And if $a\neq b$ then there are at least 7 others, 4 of these 8 divisors have positive real components and are therefore candidates for consideration. This has the effect of cutting in 4 the number of Gaussian integers we need to inspect\\
+
+Further, we notice that each Gaussian factor (and it's conjugate pair) $(a\pm ib) | k$ with $a,b,k\in \N$ and $k \leq n$ is part of a pair since 
+$$\frac{k}{a\pm ib} = \frac{k(a\mp ib)}{a^2+b^2} \in\Z[i] \RA \frac{ka}{a^2+b^2}\in\Z \text{ and } \frac{kb}{a^2+b^2}\in\Z$$
+Is also a factor of $k$\\
 
 % https://tex.stackexchange.com/questions/18260/drawing-a-circle-in-the-complex-plane
 % -- cartesian plane diagram --
-\iffalse
+
 \begin{tikzpicture}
     \begin{scope}[thick,font=\scriptsize]
     % Axes:
@@ -158,52 +163,113 @@ This is intuitive is you consider that multiplication in the complex plane is me
 
     % Axes labels:
     % Are drawn using small lines and labeled with `node`s. The placement can be set using options
-    \iffalse% Single
-    % If you only want a single label per axis side:
-    \draw (1,-3pt) -- (1,3pt)   node [above] {$1$};
-    \draw (-1,-3pt) -- (-1,3pt) node [above] {$-1$};
-    \draw (-3pt,1) -- (3pt,1)   node [right] {$i$};
-    \draw (-3pt,-1) -- (3pt,-1) node [right] {$-i$};
+    \draw (-2,-2) -- (10,10); % draw lines of symmetry
+    
     \else% Multiple
-    
-    % draw lines of symmetry
-    %\begin{scope}[curve in scope red]
-    \draw (-2,-2) -- (10,10)
-    %\end{scope}
-    
     
     
     % If you want labels at every unit step:
     \foreach \n in {-2,...,-1,1,2,...,10}{%
         \draw (\n,-3pt) -- (\n,3pt)   node [above] {$\n$};
         \draw (-3pt,\n) -- (3pt,\n)   node [right] {$\n i$};
-    }
+    }% still labels
     \foreach \n in {11,12,13,14}{
         \draw (\n,-3pt) -- (\n,3pt)   node [above] {$\n$};
     }
-    \foreach \n in {-2,...,-1,1,2,...,10}{
-        \foreach \m in {-2,...,-1,1,2,...,14}{
-            \draw (\m,\n) node[circle,fill,inner sep=1pt]{};
+    % blacks first
+    \foreach \b in {-2,-1}{
+        \foreach \a in {-2,-1,1,2,...,14}{
+            \draw (\a,\b) node[circle,fill,inner sep=1pt]{};
         }
-        
     }
-    % the dude's circle which is very nice... but not for me thanks, delete this once you've read and understand it
-    \draw (0,0) node[circle,fill,inner sep=1pt]{};
-    \fi
+    \draw (-2,1) node[circle,fill,inner sep=1pt]{};
+    \draw (-1,1) node[cicle,fill,inner sep=1pt]{};
+    \foreach \b in {2,...,10}{
+        \foreach \a in {-2,-1,1,2,...,\b}{
+            \draw (\a,\b) node[circle,fill,inner sep=1pt]{};
+        }
+    }
+    % then greens
+    \foreach \n in {1,12,13,14}{
+        \draw[green] (\n,1) node[circle,fill,inner sep=1pt]{};
+    }
+    \foreach \n in {2,...,11}{
+        \draw[green] (\n,1) node[circle,fill,inner sep=1pt]{};
+        \draw[green] (\n,\n-1) node[circle,fill,inner sep=1pt]{};
+    }
+    % b is 2
+    \foreach \a in {5,7,9,11,13}{
+        \draw[green] (\a,2) node[circle,fill,inner sep=1pt]{};
+    }
+    % b is 3
+    \foreach \a in {5,7,8,10,11,13,14}{
+        \draw[green] (\a,3) node[circle,fill,inner sep=1pt]{};
+    }
+    % b is 4
+    \foreach \a in {7,9,11,13}{
+        \draw[green] (\a,4) node[circle,fill,inner sep=1pt]{};
+    }
+    % b is 5
+    \foreach \a in {7,8,9,11,12,13,14}{
+        \draw[green] (\a,5) node[circle,fill,inner sep=1pt]{};
+    }
+    % b is 6
+    \foreach \a in {11,13}{
+        \draw[green] (\a,6) node[circle,fill,inner sep=1pt]{};
+    }
+    % b is 7
+    \foreach \a in {9,10,11,12,13}{
+        \draw[green] (\a,7) node[circle,fill,inner sep=1pt]{};
+    }
+    % b is 8
+    \foreach \a in {11,13}{
+        \draw[green] (\a,8) node[circle,fill,inner sep=1pt]{};
+    }
+    % b is 9
+    \foreach \a in {11,13,14}{
+        \draw[green] (\a,9) node[circle,fill,inner sep=1pt]{};
+    }
+    % b is 10
+    \draw[green] (13,10) node[circle,fill,inner sep=1pt]{};
+    
+    
+    % then reds
+    \foreach \n in {2,...,10}{
+        \draw[purple] (\n,\n) node[circle,fill,inner sep=1pt]{};
+    }
+    % b is 2
+    \foreach \a in {4,6,...,14}{
+        \draw[purple] (\a,2) node[circle,fill,inner sep=1pt]{};
+    }
+    % b is 3
+    \foreach \a in {6,9,12}{
+        \draw[purple] (\a,3) node[circle,fill,inner sep=1pt]{};
+    }
+    % b is 4
+    \foreach \a in {6,8,10,12,14}{
+        \draw[purple] (\a,4) node[circle,fill,inner sep=1pt]{};
+    }
+    % b is 5
+    \draw[purple] (10,5) node[circle,fill,inner sep=1pt]{};
+    % b is 6
+    \foreach \a in {8,10,12,14}{
+        \draw[purple] (\a,6) node[circle,fill,inner sep=1pt]{};
+    }
+    % b is 7
+    \draw[purple] (14,7) node[circle,fill,inner sep=1pt]{};
+    % b is 8
+    \foreach \a in {10,12,14}{
+        \draw[purple] (\a,8) node[circle,fill,inner sep=1pt]{};
+    }
+    \draw[purple] (12,9) node[circle,fill,inner sep=1pt]{};
+    \draw[purple] (11,9) node[circle,fill,inner sep=1pt]{};
+    \draw[purple] (12,10) node[circle,fill,inner sep=1pt]{};
+    \draw[purple] (14,10) node[circle,fill,inner sep=1pt]{};
+    
     \end{scope}
-    % The circle is drawn with `(x,y) circle (radius)`
-    % You can draw the outer border and fill the inner area differently.
-    % Here I use gray, semitransparent filling to not cover the axes below the circle
-    \path [draw=none,fill=gray,semitransparent] (+1,-1) circle (3);
-    % Place the equation into the circle:
-    \node [below right,gray] at (+1,-1) {$|z-1+i| \leq 3$};
 \end{tikzpicture}
-\fi
 % -- cartesian plane diagram --
 
-First, we notice that each Gaussian factor (and it's conjugate pair) $(a\pm ib) | k$ with $a,b,k\in \N$ and $k \leq n$ is part of a pair since 
-$$\frac{k}{a\pm ib} = \frac{k(a\mp ib)}{a^2+b^2} \in\Z[i] \RA \frac{ka}{a^2+b^2}\in\Z \text{ and } \frac{kb}{a^2+b^2}\in\Z$$
-Is also a factor of $k$\\
 
 \begin{problem}[Observation 2]\\
     If $\gcd(a,b)=1$ and $(a+ib)|k \RA k = m\cdot (a^2+b^2)$ with $a,b\in \Z\quad$ for any $k\in\N$ where $m\in\N$\\
@@ -230,16 +296,14 @@ Is also a factor of $k$\\
     $$
     \{ k\text{ s.t. } k=hq=m\cdot\frac{a^2+b^2}{q} \}
     $$
-    
 \end{proof}
 
-% --- cut this out and include in .md article --- %
-\iffalse
-The intuition that underlies the two above statements is the following: considering multiplication between complex numbers to be a binary operation whereby you multiply the lengths and sum the arguments of pointy arrows in the complex plane and consider $u = (a+ib) = ze^{i\theta}$ such that $\gcd(a,b)=1$. Now draw a straight line that passes through $0$ and $u$. If you follow the line from the origin outwards, the first Gaussian integer you encounter will be $u$, and all the other Gaussian integers you encounter will be integer multiples of $u$. Because of the way our complex binary operator behaves, dividing any real number by $u$ will give you a complex number that lies on the line that is the relection of this line on the real line, in other words the argument is negated: $\frac{r}{ze^{i\theta}} = \frac{r}{z}e^{-i\theta}$.\\
 
-So any integer $k \text{ s.t. }u|k$ is the product of $u$ and $v$  where $\arg(v)=-\theta$, so $v = \alpha(a-ib)$\\
-\fi
-% --- cut this out and include in .md article --- %
+Intuition: considering multiplication between complex numbers to be a binary operation whereby you multiply the lengths and sum the arguments of pointy arrows in the complex plane and consider $u = (a+ib) = ze^{i\theta}$ such that $\gcd(a,b)=1$. Now draw a straight line that passes through $0$ and $u$. If you follow the line from the origin outwards, the first Gaussian integer you encounter will be $u$, and all the other Gaussian integers you encounter will be integer multiples of $u$. Because of the way our complex binary operator behaves, dividing any real number by $u$ will give you a complex number that lies on the line that is the reflection of this line on the real line, in other words the argument is negated: $\frac{r}{ze^{i\theta}} = \frac{r}{z}e^{-i\theta}$.\\
+So any integer $k \st u|k$ is the product of $u$ and $v$  where $\arg(v)=-\theta$, so $v = \alpha(a-ib)$\\
+
+
+
 
 \begin{problem}[Corollary 2]\\
     If $gcd(a,b)=1$ and $a^2+b^2 > \sqrt{n}$ the $a+ib$ is not a Gaussian factor of \textit{any} natural number smaller than $n$.
@@ -299,7 +363,7 @@ for b in range(1,int(0.5*(np.sqrt(2*n-1)-1)+1)):
 \begin{itmemize}
 \item \href{https://projecteuler.net/problem=153}{Project Euler Problem 153}
 \item \href{https://github.com/dcxSt/project-euler/blob/master/problem\%20153\%20gaussian\%20integers/problem153.py}{Code}
-\item \href{}{My post about this problem}
+\item \href{https://dcxst.github.io//2019/07/19/prject-euler-problem-153.html}{My post about this problem}
 
 \end{itmemize}
 
