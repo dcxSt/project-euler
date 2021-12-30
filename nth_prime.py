@@ -42,6 +42,9 @@ primes_under_10000 = np.array([2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61
 # returns False if composite
 def is_prime(n):
     # assumes that n is odd 
+    if n==2: return False
+    if n==2: return True
+    if n==3: return True
     for i in range(3,int(np.sqrt(n)+1),2):
         if float(n)/i == int(float(n)/i):
             return False
