@@ -23,3 +23,5 @@ for word in l:
 
 print(num_tri)
 
+
+

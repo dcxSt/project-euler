@@ -9,6 +9,10 @@ def sign(n):
 
 df = pd.read_csv("p102_triangles.txt",delimiter=",",names=["0","1","2","3","4","5"])
 
+
+:tabe a
+
+
 counter = 0
 
 for index,row in df.iterrows():
@@ -30,3 +34,15 @@ for index,row in df.iterrows():
         counter += 1
 
 print(counter)
+
+counter
+counter
+counter
+counter
+counter
+counter
+counter
+
+
+
+Vim
