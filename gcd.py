@@ -12,5 +12,3 @@ def gcd(a:int,b:int):
         return gcd(a,r)
     return a # this is when a = b 
 
-
-
