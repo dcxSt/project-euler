@@ -2,3 +2,5 @@
 *.vscode*
 *.pyc
 *.swp
+rec_letter/
+.DS_Store
