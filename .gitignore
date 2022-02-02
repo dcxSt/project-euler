@@ -4,3 +4,5 @@
 *.swp
 rec_letter/
 .DS_Store
+*.lock
+rust/**/target/
