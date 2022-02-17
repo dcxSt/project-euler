@@ -1,6 +1,7 @@
 use num::integer::sqrt;
 use std::iter::Iterator;
 
+// this function will return true if n is prime, false otherwise
 fn isprime(n: u16) -> bool {
     match n {
         1 => return false,
